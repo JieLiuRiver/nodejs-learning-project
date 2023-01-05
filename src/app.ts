@@ -1,6 +1,6 @@
-import express from 'express';
+import express, { Express } from 'express';
 import { findAvailablePort } from './shared/port';
-
+import cors from 'cors';
 import router from './router';
 
 process.on('uncaughtException', (err) => {
@@ -14,6 +14,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.static('public'));
+app.use(cors());
 app.use('/api/v1', router);
 
 
