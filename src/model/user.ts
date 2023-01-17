@@ -1,12 +1,11 @@
 import { promisify } from 'util';
 import fs from 'fs';
 import { v4 as uuid } from 'uuid';
-import path from 'path';
+import { clone } from 'lodash';
 import { User } from '../types';
+import { writeUsers, USERS_DB_FILE_PATH } from '../shared/writeFile';
 
 const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
-const USERS_DB_FILE_PATH = path.join(__dirname, '../db/users.json');
 
 interface UserModelResponse {
   status: 0 | -1;
@@ -75,16 +74,17 @@ class UserModel {
         const userid = uuid();
         const newUser = Object.assign({ id: userid }, user);
         const newUsers = [...users, newUser];
-        try {
-            await writeFile(USERS_DB_FILE_PATH, JSON.stringify(newUsers));
-            result.status = 0;
-            result.message = 'insert ok';
-            result.userid = userid;
-            return result;
-        } catch (error) {
-            console.log(error);
-            return result;
-        }
+        await writeUsers(newUsers, async () => {
+            result.status = -1;
+            result.message = 'insert user failed';
+            // rollback
+            await writeUsers(users);
+        });
+        if (result.status === -1) return result;
+        result.status = 0;
+        result.message = 'insert ok';
+        result.userid = userid;
+        return result;
     }
 
     private isLoginnameTaken(users: User[], name: string): boolean {
@@ -110,6 +110,7 @@ class UserModel {
         };
 
         const users = await this.getUsers();
+        const cloneUsers = clone(users);
 
         const existingIdx = users.findIndex((item) => item.id === user.id);
 
@@ -131,15 +132,17 @@ class UserModel {
         };
 
         users[existingIdx] = updatedUser;
-        try {
-            await writeFile(USERS_DB_FILE_PATH, JSON.stringify(users));
-            result.status = 0;
-            result.message = 'update ok';
-            return result;
-        } catch (error) {
-            console.log(error);
-            return result;
-        }
+
+        await writeUsers(users, async () => {
+            result.status = -1;
+            result.message = 'update user failed';
+            // rollback
+            await writeUsers(cloneUsers);
+        });
+        if (result.status === -1) return result;
+        result.status = 0;
+        result.message = 'update ok';
+        return result;
     }
 
     async removeUser(id: string): Promise<UserModelResponse> {
@@ -147,25 +150,26 @@ class UserModel {
             status: 0
         };
 
-        try {
-            const users = await this.getUsers();
+        const users = await this.getUsers();
+        const cloneUsers = clone(users);
 
-            const newUsers = users.map((userItem: User) => {
-                if (userItem.id === id) {
-                    userItem.isDeleted = true;
-                    return userItem;
-                }
+        const newUsers = users.map((userItem: User) => {
+            if (userItem.id === id) {
+                userItem.isDeleted = true;
                 return userItem;
-            });
+            }
+            return userItem;
+        });
 
-            await writeFile(USERS_DB_FILE_PATH, JSON.stringify(newUsers));
-
-            result.status = 0;
-            result.message = 'remove ok';
-        } catch (error) {
+        await writeUsers(newUsers, async () => {
             result.status = -1;
-            result.message = 'remove fail';
-        }
+            result.message = 'remove user failed';
+            // rollback
+            await writeUsers(cloneUsers);
+        });
+        if (result.status === -1) return result;
+        result.status = 0;
+        result.message = 'remove ok';
         return result;
     }
 }

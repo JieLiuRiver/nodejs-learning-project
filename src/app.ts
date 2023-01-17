@@ -26,8 +26,5 @@ findAvailablePort(app, Number(PORT))
         app.listen(port, () =>
             console.log(`⚡️[server]: Server is running at https://localhost:${port}`)
         );
-        setTimeout(() => {
-            throw new Error('test');
-        }, 2000);
     })
     .catch((err) => console.error(err));
