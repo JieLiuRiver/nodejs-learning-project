@@ -1,12 +1,12 @@
 {
-    "ignore": [".git", "node_modules", "lib", "dist"],
+    "ignore": [".git", "node_modules", "dist", "dist"],
     "watch": ["src", "!src/db"],
-    "exec": "mkdir -p lib && tsc && babel-node lib/app.js",
+    "exec": "mkdir -p dist && tsc && babel-node dist/app.js",
     "ext": "ts",
     "delay": 500,
     "legacyWatch": true,
     "events": {
-      "restart": "cp -r ./src/db/  lib/db/",
-      "start": "cp -r ./src/db/  lib/db/"
+      "restart": "cp -r ./src/db/  dist/db/",
+      "start": "cp -r ./src/db/  dist/db/"
     }
 }

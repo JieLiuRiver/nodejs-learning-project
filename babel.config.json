@@ -2,9 +2,9 @@
     "presets": ["@babel/preset-env"],
     "plugins": [
     ["module-resolver", {
-        "root": ["./lib"],
+        "root": ["./dist"],
             "alias": {
-            "@": "./lib"
+            "@": "./dist"
             }
         }]
     ]
