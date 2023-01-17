@@ -3,12 +3,19 @@ import { findAvailablePort } from './shared/port';
 
 import router from './router';
 
+process.on('uncaughtException', (err) => {
+    console.error('An uncaught error occurred：');
+    console.error(err);
+    process.exit(1);
+});
+
 const PORT = process.env.PORT || 3000;
 const app = express();
 
 app.use(express.json());
 app.use(express.static('public'));
 app.use('/api/v1', router);
+
 
 findAvailablePort(app, Number(PORT))
     .then((port) => {
@@ -19,5 +26,8 @@ findAvailablePort(app, Number(PORT))
         app.listen(port, () =>
             console.log(`⚡️[server]: Server is running at https://localhost:${port}`)
         );
+        setTimeout(() => {
+            throw new Error('test');
+        }, 2000);
     })
     .catch((err) => console.error(err));
