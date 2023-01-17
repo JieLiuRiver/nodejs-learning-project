@@ -1,13 +1,13 @@
 {
   "ignore": [".git", "node_modules", "dist", "dist"],
   "watch": ["src", "!src/db"],
-  "exec": "mkdir -p dist && tsc && babel-node dist/app.js",
+  "exec": "tsc && babel-node dist/app.js",
   "ext": "ts",
   "delay": 500,
   "legacyWatch": true,
   "events": {
-    "restart": "cp -r ./src/db/  dist/db/",
-    "start": "cp -r ./src/db/  dist/db/",
+    "restart": "mkdir -p dist && cp -r ./src/db/  dist/db/",
+    "start": "mkdir -p dist && cp -r ./src/db/  dist/db/",
     "crash": "node scripts/crash-handle.js"
   }
 }
