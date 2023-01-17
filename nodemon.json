@@ -1,7 +1,7 @@
 {
     "ignore": [".git", "node_modules", "lib", "dist"],
     "watch": ["src", "!src/db"],
-    "exec": "tsc && babel-node lib/app.js",
+    "exec": "mkdir -p lib && tsc && babel-node lib/app.js",
     "ext": "ts",
     "delay": 500,
     "legacyWatch": true,
