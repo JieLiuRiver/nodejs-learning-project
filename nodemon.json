@@ -6,8 +6,6 @@
   "delay": 500,
   "legacyWatch": true,
   "events": {
-    "restart": "mkdir -p dist && cp -r ./src/db/  dist/db/",
-    "start": "mkdir -p dist && cp -r ./src/db/  dist/db/",
     "crash": "node scripts/crash-handle.js"
   }
 }

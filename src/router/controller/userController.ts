@@ -1,64 +1,61 @@
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import UserService from '../../services/userServices';
 
-const getUserById = async (req: Request<{userid: string}>, res: Response) => {
+const getUserById = async (req: Request<{userid: string}>, res: any) => {
     const userid = req.params.userid;
     const user = await UserService.findUserById(userid);
-    res.status(200).json({
-        code: user ? 0 : -1,
-        message: user ? null : `connot find user by id ${userid}`,
-        data: user || null
-    });
+    res.formatResponse(
+        user ? 0 : -1,
+        user ? null : `connot find user by id ${userid}`,
+        user || null
+    );
 };
 
 const getUsers = async (req: Request<any, any, any, {
     limit?: number,
     loginSubstring?: string
-}>, res: Response) => {
+}>, res: any) => {
     const { loginSubstring, limit } = req.query;
     const users = await UserService.getUsers(limit, loginSubstring);
-    res.status(200).json({
-        code: 0,
-        message: null,
-        data: users || []
-    });
+    res.formatResponse(
+        0,
+        null,
+        users || []
+    );
 };
 
-const createUser = async (req: Request, res: Response) => {
+const createUser = async (req: Request, res: any) => {
     const result = await UserService.insertUser(req.body);
-    res.status(200).json({
-        code: result?.status,
-        message: result?.message,
-        data: {
+    res.formatResponse(
+        result?.status || 0,
+        result?.message || null,
+        {
             userid: result?.userid
         }
-    });
+    );
 };
 
-const updateUser = async (req: Request, res: Response) => {
+const updateUser = async (req: Request, res: any) => {
     const result = await UserService.updateUser(req.body);
-    res.status(200).json({
-        code: result?.status,
-        message: result?.message,
-        data: null
-    });
+    res.formatResponse(
+        result?.status || 0,
+        result?.message || null
+    );
 };
 
-const deleteUser = async (req: Request<{userid: string}>, res: Response) => {
+const deleteUser = async (req: Request<{userid: string}>, res: any) => {
     const userid = req.body.userid;
     if (!userid) {
-        res.status(200).json({
-            code: 0,
-            message: 'userid is required',
-            data: null
-        });
+        res.formatResponse(
+            0,
+            'userid is required'
+        );
     }
     const result = await UserService.removeUser(userid);
-    res.status(200).json({
-        code: result?.status,
-        message: result?.message,
-        data: null
-    });
+    res.formatResponse(
+        result?.status,
+        result?.message || null
+    );
 };
 
 export default {
