@@ -1,6 +1,6 @@
 import express from 'express';
 import Controllers from '../controller';
-import * as userValidator from '../middleware/validator/userValidator';
+import * as userValidator from '@/middlewares/validator/userValidator';
 const router = express.Router();
 
 const { UserController } = Controllers;

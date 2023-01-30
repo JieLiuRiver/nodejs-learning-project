@@ -1,4 +1,4 @@
-import { GroupType } from '../types';
+import { GroupType } from "@/types";
 
 export default class GroupMapper {
     static toGroups(Groups: any[]) {

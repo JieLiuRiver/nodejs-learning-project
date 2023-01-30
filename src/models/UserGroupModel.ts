@@ -1,5 +1,5 @@
 import Sequelize, { Model } from 'sequelize';
-import sequelize from '../data-access/sequelize';
+import sequelize from '@/data-access/sequelize';
 import { v1 as uuid } from 'uuid';
 
 const UserGroup = sequelize.define<Model<{id: string, userid: string, groupid: string}>>('usersGroups', {

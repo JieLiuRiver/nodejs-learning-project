@@ -1,6 +1,6 @@
 import Sequelize, { Model } from 'sequelize';
-import sequelize from '../data-access/sequelize';
-import { User } from '../types';
+import sequelize from '@/data-access/sequelize';
+import { User } from '@/types';
 import { v1 as uuid } from 'uuid';
 
 const Users = sequelize.define<Model<User>>('users', {

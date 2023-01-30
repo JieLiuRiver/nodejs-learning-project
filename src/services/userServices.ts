@@ -1,5 +1,5 @@
-import Models from '../models';
-import { User } from '../types';
+import Models from '@/models';
+import { User } from '@/types';
 import { toUsers } from '../helper/utils';
 
 const { UserModel, GroupModel } = Models;

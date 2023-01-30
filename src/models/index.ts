@@ -1,5 +1,5 @@
 
-import sequelize from '../data-access/sequelize';
+import sequelize from '@/data-access/sequelize';
 import UserModel from './userModel';
 import GroupModel from './groupModel';
 import UserGroupModel from './UserGroupModel';

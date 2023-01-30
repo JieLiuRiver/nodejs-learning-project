@@ -1,6 +1,6 @@
-import Models from '../models';
-import { EPermissionType, GroupType } from '../types';
-import sequelize from '../data-access/sequelize';
+import Models from '@/models';
+import { EPermissionType, GroupType } from '@/types';
+import sequelize from '@/data-access/sequelize';
 import { toGroupWithPermission, toGroups } from '../helper/utils';
 
 const { GroupModel, UserModel } = Models;

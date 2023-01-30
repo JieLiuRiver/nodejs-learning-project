@@ -1,6 +1,6 @@
 import express from 'express';
 import Controllers from '../controller';
-import * as GroupValidator from '../middleware/validator/GroupValidator';
+import * as GroupValidator from '@/middlewares/validator/GroupValidator';
 const router = express.Router();
 
 const { GroupController } = Controllers;
