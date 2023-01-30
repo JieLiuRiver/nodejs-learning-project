@@ -1,14 +1,16 @@
 import express from 'express';
 import Controllers from '../controller';
 import * as userValidator from '@/middlewares/validator/userValidator';
+import jwtServices from '@/services/jwtServices';
 const router = express.Router();
 
 const { UserController } = Controllers;
 
-router.get('/', UserController.getUserById);
-router.get('/list', UserController.getUsers);
-router.post('', userValidator.createUser, UserController.createUser);
-router.put('', userValidator.updateUser, UserController.updateUser);
-router.delete('', UserController.deleteUser);
+router.get('/', jwtServices.verifyToken(true), UserController.getUserById);
+router.get('/list', jwtServices.verifyToken(true), UserController.getUsers);
+router.post('/register', userValidator.createUser, UserController.createUser);
+router.post('/login', userValidator.doLogin, UserController.doLogin);
+router.put('', jwtServices.verifyToken(true), userValidator.updateUser, UserController.updateUser);
+router.delete('', jwtServices.verifyToken(true), UserController.deleteUser);
 
 export default router;

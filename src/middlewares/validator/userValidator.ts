@@ -45,7 +45,15 @@ export const getUser = validate(
     ]
 );
 
+export const doLogin = validate(
+    [
+        body('login').notEmpty().withMessage('login is required').bail(),
+        body('password').notEmpty().withMessage('password is required').bail()
+    ]
+);
+
 export const updateUser = validate([
     body('id').notEmpty().withMessage('id is required').bail(),
     ...getValidators('update').filter(Boolean)
 ]);
+

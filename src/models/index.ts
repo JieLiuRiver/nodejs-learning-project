@@ -6,7 +6,7 @@ import UserGroupModel from './UserGroupModel';
 
 
 const asynModel = async () => {
-    console.log('Sync all defined models to the DB...');
+    console.log('Syncing all defined models to the DB...');
     await sequelize.sync();
 };
 

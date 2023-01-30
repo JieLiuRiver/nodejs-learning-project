@@ -1,4 +1,9 @@
-export { Request, Response, NextFunction } from "express";
+export { Request, Response, NextFunction } from 'express';
+
+export type JWTUserInfo = {
+  username: string;
+  password: string;
+}
 
 export type User = {
   id: string;

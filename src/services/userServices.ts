@@ -1,6 +1,8 @@
 import Models from '@/models';
 import { User } from '@/types';
 import { toUsers } from '../helper/utils';
+import jwtServices from './jwtServices';
+import md5Service from './md5Service';
 
 const { UserModel, GroupModel } = Models;
 interface UserServiceResponse {
@@ -10,6 +12,11 @@ interface UserServiceResponse {
 
 interface InsertResponse extends UserServiceResponse {
     userid?: string
+}
+
+interface LoginResponse extends UserServiceResponse {
+    userid?: string
+    token: string;
 }
 
 class UserService {
@@ -39,7 +46,8 @@ class UserService {
         const findResult = await UserModel.findOne({
             where: {
                 id
-            }
+            },
+            raw: true
         });
         return findResult;
     }
@@ -56,10 +64,42 @@ class UserService {
                 result.message = `${user.login} is already exists.`;
                 return result;
             }
+            user.password = md5Service.createHash(user.password);
             const createRes =  await UserModel.create(user as User);
             result.status = 0;
-            result.message = 'insert ok';
+            result.message = 'register successfully';
             result.userid = createRes.dataValues.id;
+            return result;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async login(user: Pick<User, 'login' | 'password'>) {
+        const result: LoginResponse = {
+            status: 0,
+            token: ''
+        };
+        try {
+            const existUser = await UserModel.findOne({ where: { login: user.login }, raw: true });
+            if (!existUser) {
+                result.status = -1;
+                result.message = `${user.login} is not exists.`;
+                return result;
+            }
+            const isCollect = await md5Service.compareHash(user.password, (existUser as any).password);
+            if (!isCollect) {
+                result.status = -1;
+                result.message = 'the password is incorrect';
+                return result;
+            }
+
+            result.token = await jwtServices.createToken({
+                username: (existUser as any).login,
+                password: (existUser as any).password
+            });
+            result.status = 0;
+            result.message = 'login ok';
             return result;
         } catch (error) {
             console.log(error);
@@ -71,7 +111,7 @@ class UserService {
             status: 0
         };
         try {
-            const findResult = await UserModel.findOne({ where: { id: user.id } });
+            const findResult = await UserModel.findOne({ where: { id: user.id }, raw: true });
             if (!findResult) {
                 result.status = -1;
                 result.message = `${user.login} is not exists.`;

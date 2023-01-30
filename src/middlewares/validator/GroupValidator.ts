@@ -25,3 +25,12 @@ export const updateGroup = validate([
     body('id').notEmpty().withMessage('id is required').bail(),
     ...getValidators('update').filter(Boolean)
 ]);
+
+export const updateGroupContainUsers = validate([
+    body('groupid').notEmpty().withMessage('groupid is required').bail(),
+    body('userids').notEmpty().withMessage('userids is required').bail()
+]);
+
+export const deleteGroup = validate([
+    body('groupid').notEmpty().withMessage('groupid is required').bail()
+]);

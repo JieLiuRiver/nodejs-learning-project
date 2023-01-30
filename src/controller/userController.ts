@@ -1,12 +1,14 @@
 import { Request } from 'express';
 import log from '@/services/logServices';
 import ReqMapper from '@/mapper/reqMapper';
-import UserService from '../services/userServices';
+import UserService from '@/services/userServices';
+import { omit } from 'lodash';
 
 const getUserById = async (req: Request<any, any, {userid: string}>, res: any) => {
     try {
         const userid = req.query.userid;
-        const user = await UserService.findUserById(userid as string);
+        let user: any = await UserService.findUserById(userid as string);
+        user = omit(user, ['password', 'idDeleted']);
         res.formatResponse(
             user ? 0 : -1,
             user ? null : `connot find user by id ${userid}`,
@@ -30,7 +32,9 @@ const getUsers = async (req: Request<any, any, any, {
         res.formatResponse(
             0,
             null,
-            users || []
+            (users || []).map((user) => ({
+                ...omit(user, ['password', 'idDeleted'])
+            }))
         );
     } catch (error) {
         log.error({
@@ -58,12 +62,31 @@ const createUser = async (req: Request, res: any) => {
     }
 };
 
+const doLogin = async (req: Request, res: any) => {
+    try {
+        const result = await UserService.login(req.body);
+        res.formatResponse(
+            result?.status,
+            result?.message,
+            {
+                token: result?.token || null
+            }
+        );
+    } catch (error) {
+        log.error({
+            ...ReqMapper.toServiceApiFromReq(req),
+            error
+        });
+    }
+};
+
 const updateUser = async (req: Request, res: any) => {
     try {
         const result = await UserService.updateUser(req.body);
         res.formatResponse(
-            result?.status || 0,
-            result?.message || null
+            result?.status,
+            result?.message,
+            null
         );
     } catch (error) {
         log.error({
@@ -79,13 +102,15 @@ const deleteUser = async (req: Request<{userid: string}>, res: any) => {
         if (!userid) {
             res.formatResponse(
                 0,
-                'userid is required'
+                'userid is required',
+                null
             );
         }
         const result = await UserService.removeUser(userid);
         res.formatResponse(
             result?.status,
-            result?.message || null
+            result?.message,
+            null
         );
     } catch (error) {
         log.error({
@@ -100,5 +125,6 @@ export default {
     getUserById,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    doLogin
 };
