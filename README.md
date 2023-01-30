@@ -1,16 +1,8 @@
 ## Task
 
 ## DataBase
-check in `config/index.ts` file, use local postgres sql, change to your local database before running start:
-```
-postgres: {
-    host: '127.0.0.1',
-    user: 'bode_he',
-    password: '123456',
-    database: 'postgres',
-    port: 5432
-}
-```
+You can change config info in `.env` file.
+
 ## API
 
 - Based on RESTful API interface specification

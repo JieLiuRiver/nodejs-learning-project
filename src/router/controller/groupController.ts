@@ -73,17 +73,35 @@ const updateGroup = async (req: Request, res: any) => {
     }
 };
 
-const deleteGroup = async (req: Request<{Groupid: string}>, res: any) => {
+const deleteGroup = async (req: Request<{groupid: string}>, res: any) => {
     try {
         const groupid = req.body.groupid;
-        if (!groupid) {
+        const result = await GroupService.removeGroup(groupid);
+        res.formatResponse(
+            result?.status,
+            result?.message,
+            null
+        );
+    } catch (error) {
+        log.error({
+            ...ReqMapper.toServiceApiFromReq(req),
+            error
+        });
+    }
+};
+
+
+const updateGroupContainUsers = async (req: Request, res: any) => {
+    try {
+        const { groupid, userids } = req.body;
+        if (!Array.isArray(userids) || !userids?.length) {
             res.formatResponse(
                 0,
-                'groupid is required',
+                'userids is required',
                 null
             );
         }
-        const result = await GroupService.removeGroup(groupid);
+        const result = await GroupService.updateGroupContainUsers(groupid, userids);
         res.formatResponse(
             result?.status,
             result?.message,
@@ -102,5 +120,6 @@ export default {
     getGroupById,
     getGroups,
     updateGroup,
-    deleteGroup
+    deleteGroup,
+    updateGroupContainUsers
 };
