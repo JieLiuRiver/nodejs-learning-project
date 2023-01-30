@@ -1,9 +1,9 @@
 import { Request } from 'express';
 import UserService from '../services/userServices';
 
-const getUserById = async (req: Request<{userid: string}>, res: any) => {
-    const userid = req.params.userid;
-    const user = await UserService.findUserById(userid);
+const getUserById = async (req: Request<any, any, {userid: string}>, res: any) => {
+    const userid = req.query.userid;
+    const user = await UserService.findUserById(userid as string);
     res.formatResponse(
         user ? 0 : -1,
         user ? null : `connot find user by id ${userid}`,

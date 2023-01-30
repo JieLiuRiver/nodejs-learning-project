@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body, query } from 'express-validator';
 import validate from './validate';
 
 const STRONG_PWD_CONFIG = {
@@ -38,6 +38,12 @@ const getValidators = (type: 'add' | 'update') => {
 };
 
 export const createUser = validate(getValidators('add').filter(Boolean));
+
+export const getUser = validate(
+    [
+        query('userid').notEmpty().withMessage('userid is required').bail()
+    ]
+);
 
 export const updateUser = validate([
     body('id').notEmpty().withMessage('id is required').bail(),
