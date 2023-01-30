@@ -6,5 +6,4 @@ const router = express.Router();
 router.use('/user', User);
 router.use('/group', Group);
 
-
 export default router;
