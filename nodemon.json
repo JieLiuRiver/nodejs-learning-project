@@ -1,5 +1,5 @@
 {
-  "ignore": [".git", "node_modules", "dist", "dist"],
+  "ignore": [".git", "node_modules", "dist"],
   "watch": ["src", "!src/db"],
   "exec": "tsc && babel-node dist/app.js",
   "ext": "ts",

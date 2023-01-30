@@ -57,3 +57,7 @@ export const updateUser = validate([
     ...getValidators('update').filter(Boolean)
 ]);
 
+export const removeUser = validate([
+    body('id').notEmpty().withMessage('userid is required').bail()
+]);
+

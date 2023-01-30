@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import GroupService from '@/services/groupServices';
-import log from '@/services/logServices';
+import GroupService from '@/services/groupService';
+import log from '@/services/logService';
 import ReqMapper from '@/mapper/reqMapper';
 import { GroupType } from '@/types/index';
 

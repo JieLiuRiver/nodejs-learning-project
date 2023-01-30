@@ -1,13 +1,11 @@
-import 'module-alias';
-import express from 'express';
-import { findAvailablePort } from './shared/port';
-import cors from 'cors';
-import router from '@/router';
-import log from '@/services/logServices';
 import config from '@/config';
-import logApiMiddleware from '@/middlewares/logApiMiddleware';
-import logExceptionMiddleware from '@/middlewares/logExceptionMiddleware';
-import formatResponse from '@/middlewares/formatResponse';
+import 'module-alias';
+import { connectSequelize } from '@/data-access/sequelize';
+import { findAvailablePort } from './shared/port';
+import log from '@/services/logService';
+import createServer from './server';
+
+const PORT = process.env.PORT || config.port;
 
 process.on('uncaughtException', (err) => {
     log.error(err);
@@ -18,33 +16,17 @@ process.on('unhandledRejection', (err) => {
     process.exit(1);
 });
 
-const PORT = process.env.PORT || config.port;
-const app = express();
-
-app.use(formatResponse);
-app.use(express.json());
-app.use(express.urlencoded());
-app.use(logApiMiddleware, logExceptionMiddleware);
-app.use(express.static('public'));
-app.use(cors({
-    // Change to the origin of your front-end application
-    origin: 'http://localhost:8000',
-    allowedHeaders: 'Content-Type',
-    // allow with cookie or authorization
-    credentials: true,
-    methods: 'GET, POST, PUT'
-}));
-app.use(config.api_base_url, router);
-
-
-findAvailablePort(app, Number(PORT))
-    .then((port) => {
-        port !== PORT &&
-      console.log(
-          `Port ${PORT} is in use by another process. choosed ${port} port and start the server now.`
-      );
+connectSequelize()
+    .then(() => createServer())
+    .then(async (app) => {
+       const port = await findAvailablePort(app, Number(PORT))
+        if (port !== PORT) {
+            console.log(
+                `Port ${PORT} is in use by another process. choosed ${port} port and start the server now.`
+            );
+        }
         app.listen(port, () =>
             console.log(`⚡️[server]: Server is running at https://localhost:${port}`)
         );
     })
-    .catch((err) => console.error(err));
+    .catch(e => log.error(`Error:${e}`));

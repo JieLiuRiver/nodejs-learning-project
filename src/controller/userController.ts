@@ -1,7 +1,7 @@
 import { Request } from 'express';
-import log from '@/services/logServices';
+import log from '@/services/logService';
 import ReqMapper from '@/mapper/reqMapper';
-import UserService from '@/services/userServices';
+import UserService from '@/services/userService';
 import { omit } from 'lodash';
 
 const getUserById = async (req: Request<any, any, {userid: string}>, res: any) => {
@@ -99,13 +99,6 @@ const updateUser = async (req: Request, res: any) => {
 const deleteUser = async (req: Request<{userid: string}>, res: any) => {
     try {
         const userid = req.body.userid;
-        if (!userid) {
-            res.formatResponse(
-                0,
-                'userid is required',
-                null
-            );
-        }
         const result = await UserService.removeUser(userid);
         res.formatResponse(
             result?.status,
