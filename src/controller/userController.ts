@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import UserService from '../../services/userServices';
+import UserService from '../services/userServices';
 
 const getUserById = async (req: Request<{userid: string}>, res: any) => {
     const userid = req.params.userid;
