@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import UserModel from '../models/user';
 import { User } from '../types';
-import UserMapper from '../mapper/userMapper';
+import { toUsers } from '../helper/utils';
 
 // const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -22,7 +22,7 @@ class UserService {
     async getUsers(limit?: number, loginSubstring?: string) {
         try {
             const findResults = await UserModel.findAll();
-            const users = UserMapper.toUsers(findResults);
+            const users = toUsers(findResults);
             let avaibleUsers = users.filter((user) => !user.isDeleted);
             if (loginSubstring) {
                 avaibleUsers = avaibleUsers.filter((user) => user.login.includes(loginSubstring));
