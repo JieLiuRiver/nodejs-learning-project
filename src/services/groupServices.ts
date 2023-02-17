@@ -1,7 +1,7 @@
 import Models from '../models';
 import { EPermissionType, GroupType } from '../types';
 import sequelize from '../data-access/sequelize';
-import GroupMapper from '../mapper/GroupMapper';
+import { toGroupWithPermission, toGroups } from '../helper/utils';
 
 const { GroupModel, UserModel } = Models;
 interface GroupServiceResponse {
@@ -21,7 +21,7 @@ class GroupService {
                     { model: UserModel, attributes: ['id', 'login'] }
                 ]
             });
-            return GroupMapper.toGroups(findResults);
+            return toGroups(findResults);
         } catch (error) {
             console.log(error);
             return [];
@@ -65,7 +65,7 @@ class GroupService {
             }
             let groupid: string;
             await sequelize.transaction(async (t) => {
-                const createRes: any =  await GroupModel.create(GroupMapper.toGroupWithPermission(group) as any, { transaction: t });
+                const createRes: any =  await GroupModel.create(toGroupWithPermission(group) as any, { transaction: t });
                 groupid = createRes.dataValues.id;
                 return await this.addUsersToGroup(groupid, userIds, t);
             });
@@ -122,7 +122,7 @@ class GroupService {
 
             const row: Partial<GroupType> = JSON.parse(JSON.stringify(group));
             delete row.id;
-            await GroupModel.update(GroupMapper.toGroupWithPermission(row), {
+            await GroupModel.update(toGroupWithPermission(row), {
                 where: { id: group.id }
             });
             result.status = 0;
