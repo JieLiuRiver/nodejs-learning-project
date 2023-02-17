@@ -1,18 +1,9 @@
+# Task
 
-# Start
+# DataBase
+use free database: https://customer.elephantsql.com/instance
 
-```shell
-# 1
-npm install
-
-# 2
-npm run start
-```
-
-# Test Api tool
-
-- Use `Postman`
-- It is recommended to use VSCode's extension plug-in `Thunder Client`
+check `config/index.ts`
 
 
 # API
@@ -68,7 +59,7 @@ method:`get`
 Request demo:
 
 ```http
-http://localhost:3000/api/v1/users/1
+http://localhost:3000/api/v1/users/630c7a00-72e6-11ed-ae06-2f14792d04e8
 ```
 
 Response demo：
@@ -142,7 +133,7 @@ Request demo:
 
 ```json
 {
-  "id": "1",
+  "id": "630c7a00-72e6-11ed-ae06-2f14792d04e8",
   "login": "bode_he"
 }
 ```
@@ -161,7 +152,7 @@ Response demo：
 
 ## Remove User
 
-path: `/user/:userid`
+path: `/user`
 
 method:`delete` 
 
@@ -172,7 +163,9 @@ method:`delete`
 Request demo:
 
 ```http
-http://localhost:3000/api/v1/user/1
+{
+  userid: "630c7a00-72e6-11ed-ae06-2f14792d04e8"
+}
 ```
 
 Response demo：

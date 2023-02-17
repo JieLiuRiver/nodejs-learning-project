@@ -1,7 +1,8 @@
 import express from 'express';
 import { findAvailablePort } from './shared/port';
-
+import cors from 'cors';
 import router from './router';
+import formatResponse from './middleware/formatResponse';
 
 process.on('uncaughtException', (err) => {
     console.error('An uncaught error occurred：');
@@ -12,8 +13,10 @@ process.on('uncaughtException', (err) => {
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+app.use(formatResponse);
 app.use(express.json());
 app.use(express.static('public'));
+app.use(cors());
 app.use('/api/v1', router);
 
 
