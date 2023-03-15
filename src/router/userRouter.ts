@@ -5,13 +5,10 @@ const router = express.Router();
 
 const { UserController } = Controllers;
 
-const usersPrefix = (path?: string) => `/users${path ? `/${path}` : ''}`;
-const userPrefix = (path?: string) => `/user/${path ? `/${path}` : ''}`;
-
-router.get(usersPrefix(':userid'), UserController.getUserById);
-router.get(usersPrefix(), UserController.getUsers);
-router.post(userPrefix(), userValidator.createUser, UserController.createUser);
-router.put(userPrefix(), userValidator.updateUser, UserController.updateUser);
-router.delete(userPrefix(), UserController.deleteUser);
+router.get('/', UserController.getUserById);
+router.get('/list', UserController.getUsers);
+router.post('', userValidator.createUser, UserController.createUser);
+router.put('', userValidator.updateUser, UserController.updateUser);
+router.delete('', UserController.deleteUser);
 
 export default router;

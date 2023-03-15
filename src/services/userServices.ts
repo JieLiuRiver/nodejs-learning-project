@@ -1,14 +1,8 @@
-import { promisify } from 'util';
-import fs from 'fs';
-import path from 'path';
-import UserModel from '../models/user';
+import Models from '../models';
 import { User } from '../types';
 import { toUsers } from '../helper/utils';
 
-// const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
-const userJsonFilePath = path.join(__dirname, '../db/users.json');
-
+const { UserModel, GroupModel } = Models;
 interface UserServiceResponse {
     status: 0 | -1
     message?: string
@@ -21,7 +15,11 @@ interface InsertResponse extends UserServiceResponse {
 class UserService {
     async getUsers(limit?: number, loginSubstring?: string) {
         try {
-            const findResults = await UserModel.findAll();
+            const findResults = await UserModel.findAll({
+                include: [
+                    { model: GroupModel, attributes: ['id', 'name', 'permissions'] }
+                ]
+            });
             const users = toUsers(findResults);
             let avaibleUsers = users.filter((user) => !user.isDeleted);
             if (loginSubstring) {

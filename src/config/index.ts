@@ -1,3 +1,4 @@
+// TODO: will use .env instead in the later homework related env content
 export default {
     postgres: {
         host: 'mouse.db.elephantsql.com',

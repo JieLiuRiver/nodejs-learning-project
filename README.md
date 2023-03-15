@@ -1,17 +1,17 @@
-# Task
+## Task
 
-# DataBase
+## DataBase
 use free database: https://customer.elephantsql.com/instance
 
-check `config/index.ts`
 
-
-# API
+## API
 
 - Based on RESTful API interface specification
 - Interface basic request address: `/api/v1`
 
-## Create User
+## User
+
+### Create User
 
 path: `/user`
 
@@ -46,9 +46,9 @@ Response demo：
 }
 ```
 
-## Get User
+### Get User
 
-path: `/users/:userid`
+path: `/user`
 
 method:`get` 
 
@@ -59,7 +59,7 @@ method:`get`
 Request demo:
 
 ```http
-http://localhost:3000/api/v1/users/630c7a00-72e6-11ed-ae06-2f14792d04e8
+http://localhost:3000/api/v1/user?userid=630c7a00-72e6-11ed-ae06-2f14792d04e8
 ```
 
 Response demo：
@@ -79,9 +79,9 @@ Response demo：
 }
 ```
 
-## Get Users
+### Get Users
 
-path: `/users`
+path: `/user/list`
 
 method:`get` 
 
@@ -116,7 +116,7 @@ Response demo：
 ```
 
 
-## Update User
+### Update User
 
 path: `/user`
 
@@ -133,7 +133,7 @@ Request demo:
 
 ```json
 {
-  "id": "630c7a00-72e6-11ed-ae06-2f14792d04e8",
+  "userid": "630c7a00-72e6-11ed-ae06-2f14792d04e8",
   "login": "bode_he"
 }
 ```
@@ -150,7 +150,7 @@ Response demo：
 ```
 
 
-## Remove User
+### Remove User
 
 path: `/user`
 
@@ -177,4 +177,119 @@ Response demo：
   "message": "remove ok",
   "data": null
 }
+```
+
+
+## Group
+
+### Create Group
+
+path: `/group`
+
+method:`post` 
+
+| FieldName   | FieldType | IsRequired |
+| -------- | -------- | -------- |
+| name | string   | Yes       |
+| permissions | `Array<'READ' | 'WRITE' | 'DELETE' | 'SHARE' | 'UPLOAD_FILES'>`  | Yes       |
+| userIds | `Array<string>`  | Yes       |
+
+Request demo:
+
+```http
+{
+  name: "bode's group",
+  permissions: ["READ"],
+  userIds: [
+    "0a4e3f70-730e-11ed-b582-b1169fbd0af7",
+    "00853660-730e-11ed-b582-b1169fbd0af7"
+  ]
+}
+```
+
+Response demo：
+
+```json
+// success
+{
+  "code": 0,
+  "message": "add ok",
+  "data": null
+}
+```
+
+### Get Group
+
+path: `/group`
+
+method:`get` 
+
+| FieldName   | FieldType | IsRequired |
+| -------- | -------- | -------- |
+| groupid | string   | Yes       |
+
+Request demo:
+
+```http
+http://localhost:3000/api/v1/groupid?groupid=xxx
+```
+
+Response demo：
+
+```json
+// success
+...
+```
+
+
+### Update Group
+
+path: `/group`
+
+method:`put` 
+
+| FieldName   | FieldType | IsRequired |
+| -------- | -------- | -------- |
+| groupid | string   | Yes       |
+| name | string   | Yes       |
+| permissions | `Array<'READ' | 'WRITE' | 'DELETE' | 'SHARE' | 'UPLOAD_FILES'>`  | Yes       |
+
+Request demo:
+
+```http
+{
+  groudid: "xx",
+  permissions: ["READ", "WRITE"]
+}
+```
+
+Response demo：
+
+```json
+// success
+...
+```
+
+### Remove Group
+
+path: `/group`
+
+method:`delete` 
+
+| FieldName   | FieldType | IsRequired |
+| -------- | -------- | -------- |
+| groupid | string   | Yes       |
+Request demo:
+
+```http
+{
+  groudid: "xx",
+}
+```
+
+Response demo：
+
+```json
+// success
+...
 ```
