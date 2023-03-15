@@ -9,12 +9,12 @@ import logExceptionMiddleware from '@/middlewares/logExceptionMiddleware';
 import formatResponse from '@/middlewares/formatResponse';
 
 process.on('uncaughtException', (err) => {
-    console.error('An uncaught error occurred：');
     log.error(err);
     process.exit(1);
 });
 process.on('unhandledRejection', (err) => {
     log.error(err);
+    process.exit(1);
 });
 
 const PORT = process.env.PORT || 3000;
