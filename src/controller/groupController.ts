@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import GroupService from '../services/groupServices';
-import { GroupType } from '../types/index';
+import { GroupType } from '../types';
 
 const createGroup = async (req: Request<any, Omit<GroupType, 'id'> & {
     userIds?: string[]
