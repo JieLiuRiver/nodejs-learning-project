@@ -1,6 +1,6 @@
 import Sequelize, { Model } from 'sequelize';
-import sequelize from '../data-access/sequelize';
-import { GroupType } from '../types';
+import sequelize from '@/data-access/sequelize';
+import { GroupType } from '@/types';
 import { v1 as uuid } from 'uuid';
 
 const Group = sequelize.define<Model<

@@ -6,5 +6,6 @@ export default {
         password: 'gEEwsAtD2tfR2V-Qe7w19JBF1Nrknyss',
         database: 'fhpeduef',
         port: 5432
-    }
+    },
+    port: 3000
 };

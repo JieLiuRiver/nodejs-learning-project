@@ -1,12 +1,19 @@
+import 'module-alias';
 import express from 'express';
 import { findAvailablePort } from './shared/port';
 import cors from 'cors';
-import router from './router';
-import formatResponse from './middleware/formatResponse';
+import router from '@/router';
+import log from '@/services/logServices';
+import logApiMiddleware from '@/middlewares/logApiMiddleware';
+import logExceptionMiddleware from '@/middlewares/logExceptionMiddleware';
+import formatResponse from '@/middlewares/formatResponse';
 
 process.on('uncaughtException', (err) => {
-    console.error('An uncaught error occurred：');
-    console.error(err);
+    log.error(err);
+    process.exit(1);
+});
+process.on('unhandledRejection', (err) => {
+    log.error(err);
     process.exit(1);
 });
 
@@ -15,6 +22,7 @@ const app = express();
 
 app.use(formatResponse);
 app.use(express.json());
+app.use(logApiMiddleware, logExceptionMiddleware);
 app.use(express.static('public'));
 app.use(cors());
 app.use('/api/v1', router);
