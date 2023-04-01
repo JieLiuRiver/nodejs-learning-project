@@ -81,7 +81,7 @@ class GroupService {
             let groupid: string;
             await sequelize.transaction(async (t) => {
                 const groupInstance: any =  await GroupModel.create(toGroupWithPermission(group) as any, { transaction: t });
-                groupid = groupInstance.getDataValue('id');
+                groupid = groupInstance.dataValues.id;
                 return await this.addUsersToGroup(groupInstance, userIds, t);
             });
             result.status = 0;
