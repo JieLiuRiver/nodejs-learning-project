@@ -7,7 +7,9 @@ jest.mock('@/models', () => {
         findAll: jest.fn(),
         findOne: jest.fn(),
         create: jest.fn(),
-        update: jest.fn()
+        update: jest.fn(),
+        destroy: jest.fn(),
+        findByPk: jest.fn()
     };
     const mockUserModel = {
         findAll: jest.fn()
@@ -73,10 +75,6 @@ describe('GroupService', () => {
             permissions: [EPermissionType.READ],
             userIds: ['1']
         };
-        const mockGroupWithId = {
-            ...mockGroup,
-            id: '5'
-        };
 
         (Models.GroupModel.findOne as any).mockResolvedValue(false);
         (Models.GroupModel.findAll as any).mockResolvedValue([]);
@@ -87,13 +85,13 @@ describe('GroupService', () => {
             isDeleted: false,
             age: 20
         }]);
-        (Models.GroupModel.create as any).mockResolvedValue({
+        const createResponse: any = {
             dataValues: {
-                id: {
-                    setUser: async () => true
-                }
-            }
-        });
+                id: '5'
+            },
+            setUsers: (...args: any[]) => true
+        };
+        (Models.GroupModel.create as any).mockResolvedValue(createResponse);
 
         const result = await groupService.createGroup(mockGroup);
         expect(result).toEqual({
@@ -107,32 +105,51 @@ describe('GroupService', () => {
         expect(Models.GroupModel.create).toHaveBeenCalledTimes(1);
     });
 
-    // it('should update user successfully', async () => {
-    //     (Models.UserModel.findOne as any).mockResolvedValue(true);
-    //     (Models.UserModel.update as any).mockResolvedValue();
+    it('should update group successfully', async () => {
+        (Models.GroupModel.findOne as any).mockResolvedValue(true);
+        (Models.GroupModel.update as any).mockResolvedValue();
 
-    //     const result = await userService.updateUser({
-    //         id: '2',
-    //         age: 30
-    //     });
+        const result = await groupService.updateGroup({
+            id: '2',
+            name: 'group2',
+            permissions: [EPermissionType.READ]
+        });
 
-    //     expect(result).toEqual({
-    //         status: 0,
-    //         message: 'update ok'
-    //     });
-    //     expect(Models.UserModel.findOne).toHaveBeenCalledTimes(1);
-    //     expect(Models.UserModel.update).toHaveBeenCalledTimes(1);
-    // });
+        expect(result).toEqual({
+            status: 0,
+            message: 'update ok'
+        });
+        expect(Models.GroupModel.findOne).toHaveBeenCalledTimes(1);
+        expect(Models.GroupModel.update).toHaveBeenCalledTimes(1);
+    });
 
-    // it('should remove user successfully', async () => {
-    //     (Models.UserModel.update as any).mockResolvedValue();
+    it('should remove group successfully', async () => {
+        (Models.GroupModel.destroy as any).mockResolvedValue();
 
-    //     const result = await userService.removeUser('1');
+        const result = await groupService.removeGroup('1');
 
-    //     expect(result).toEqual({
-    //         status: 0,
-    //         message: 'remove ok'
-    //     });
-    //     expect(Models.UserModel.update).toHaveBeenCalledTimes(1);
-    // });
+        expect(result).toEqual({
+            status: 0,
+            message: 'remove ok'
+        });
+        expect(Models.GroupModel.destroy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should updateGroupContainUsers successfully', async () => {
+        const modelInstance: any = {
+            dataValues: {
+                id: '5'
+            },
+            setUsers: (...args: any[]) => true
+        };
+        (Models.GroupModel.findByPk as any).mockResolvedValue(modelInstance);
+
+        const result = await groupService.updateGroupContainUsers('2', ['1']);
+
+        expect(result).toEqual({
+            status: 0,
+            message: 'update successfully'
+        });
+        expect(Models.GroupModel.findByPk).toHaveBeenCalledTimes(1);
+    });
 });
