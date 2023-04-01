@@ -1,7 +1,7 @@
 import express from 'express';
 import * as GroupValidator from '@/middlewares/validator/GroupValidator';
 import jwtServices from '@/services/jwtServices';
-import Controllers from '../controller';
+import Controllers from '@/controller';
 
 const router = express.Router();
 
