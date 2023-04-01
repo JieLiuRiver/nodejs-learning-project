@@ -6,9 +6,11 @@ import router from '@/router';
 import logApiMiddleware from '@/middlewares/logApiMiddleware';
 import logExceptionMiddleware from '@/middlewares/logExceptionMiddleware';
 import config from '@/config';
+import formatResponse from './middlewares/formatResponse';
 
 export default (): Express => {
     const app: Express = express();
+    app.use(formatResponse);
     app.use(express.json());
     app.use(express.urlencoded());
     app.use(logApiMiddleware, logExceptionMiddleware);

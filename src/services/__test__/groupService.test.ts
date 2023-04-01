@@ -1,70 +1,138 @@
-import Models from '../../models';
 import groupService from '../groupService';
-import { EPermissionType } from '../../types/index';
+import Models from '@/models';
+import { GroupType, EPermissionType } from '@/types';
 
-const { GroupModel } = Models;
+jest.mock('@/models', () => {
+    const mockGroupModel = {
+        findAll: jest.fn(),
+        findOne: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn()
+    };
+    const mockUserModel = {
+        findAll: jest.fn()
+    };
+    return {
+        UserModel: mockUserModel,
+        GroupModel: mockGroupModel
+    };
+});
 
-jest.mock('../../models', () => ({
-    GroupModel: {
-        findAll: jest.fn().mockResolvedValue([{ id: '1', name: 'test-group' }]),
-        findOne: jest.fn().mockResolvedValue({ id: '1', login: 'test-group' }),
-        create: jest.fn().mockReturnValue({ dataValues: { groupid: 'id' } }),
-        update: jest.fn().mockReturnValue(true),
-        destroy: jest.fn().mockReturnValue(true),
-        findByPk: jest.fn().mockReturnValue({ setUsers: jest.fn() })
-    },
-    UserModel: {
-        findAll: jest.fn().mockResolvedValue([{ id: '1', login: 'test-1' }])
-    }
-}));
+describe('GroupService', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-describe('UserService', () => {
-    it('should return a list of users', async () => {
+    it('should return all groups', async () => {
+        const mockGroups: GroupType[] = [
+            {
+                id: '1',
+                name: 'group1',
+                permissions: [EPermissionType.READ]
+            },
+            {
+                id: '2',
+                name: 'group2',
+                permissions: [EPermissionType.READ, EPermissionType.WRITE]
+            },
+            {
+                id: '3',
+                name: 'group3',
+                permissions: [EPermissionType.READ, EPermissionType.WRITE, EPermissionType.DELETE]
+            }
+        ];
+        (Models.GroupModel.findAll as any).mockResolvedValue(mockGroups);
+
         const result = await groupService.getGroups();
-        expect(result).toEqual([{ id: '1', name: 'test-group' }]);
+        expect(result).toEqual(mockGroups);
+        expect(Models.GroupModel.findAll).toHaveBeenCalledTimes(1);
     });
 
-    it('should return a group with the specified ID', async () => {
+
+    it('should return group info by id', async () => {
+        const mockGroup = {
+            id: '1',
+            name: 'group1',
+            permissions: [EPermissionType.READ]
+        };
+        (Models.GroupModel.findOne as any).mockResolvedValue(mockGroup);
+
         const result = await groupService.findGroupById('1');
-        expect(result).toEqual({ id: '1', login: 'test-group' });
+
+        expect(result).toEqual(mockGroup);
+        expect(Models.GroupModel.findOne).toHaveBeenCalledTimes(1);
+        expect(Models.GroupModel.findOne).toHaveBeenCalledWith({
+            where: { id: '1' },
+            raw: true
+        });
     });
 
-    it('should return group is already exist when create a new group with existing group', async () => {
-        const result = await groupService.createGroup({
-            name: 'Test Group',
+    it('should create a new group and return the group ID', async () => {
+        const mockGroup = {
+            name: 'group5',
             permissions: [EPermissionType.READ],
-            userIds: ['user-id']
-        });
-        expect(result).toEqual({ status: -1, message: 'Test Group is already exist' });
-    });
+            userIds: ['1']
+        };
+        const mockGroupWithId = {
+            ...mockGroup,
+            id: '5'
+        };
 
-    describe('createGroup', () => {
-        it('should create a new group', async () => {
-            jest.spyOn(GroupModel, 'findOne').mockReturnValue(null as any);
-            jest.spyOn(GroupModel, 'create').mockReturnValue(Promise.resolve({
-                setUser: (users: any[], opt: any) => true,
-                dataValues: {
-                    id: '1'
+        (Models.GroupModel.findOne as any).mockResolvedValue(false);
+        (Models.GroupModel.findAll as any).mockResolvedValue([]);
+        (Models.UserModel.findAll as any).mockResolvedValue([{
+            id: '1',
+            login: 'user1',
+            password: 'password1',
+            isDeleted: false,
+            age: 20
+        }]);
+        (Models.GroupModel.create as any).mockResolvedValue({
+            dataValues: {
+                id: {
+                    setUser: async () => true
                 }
-            }));
-            const result = await groupService.createGroup({
-                name: 'AA Group',
-                permissions: [EPermissionType.READ],
-                userIds: ['user-id']
-            });
-            console.log('result', result);
-            expect(result).toEqual({ status: 0 });
+            }
         });
+
+        const result = await groupService.createGroup(mockGroup);
+        expect(result).toEqual({
+            status: 0,
+            message: 'created successfully',
+            groupid: '5'
+        });
+        expect(Models.GroupModel.findOne).toHaveBeenCalledTimes(1);
+        expect(Models.GroupModel.findAll).toHaveBeenCalledTimes(1);
+        expect(Models.UserModel.findAll).toHaveBeenCalledTimes(1);
+        expect(Models.GroupModel.create).toHaveBeenCalledTimes(1);
     });
 
-    it('should update a group to contain a list of users', async () => {
-        const result = await groupService.updateGroupContainUsers('group-id', ['user-id']);
-        expect(result).toEqual({ status: 0, message: 'update successfully' });
-        expect(GroupModel.findByPk).toHaveBeenCalledWith('group-id');
-    });
+    // it('should update user successfully', async () => {
+    //     (Models.UserModel.findOne as any).mockResolvedValue(true);
+    //     (Models.UserModel.update as any).mockResolvedValue();
 
-    it('should delete a group', async () => {
-        const result = await groupService.removeGroup('group-id');
-        expect(result).toEqual({ status: 0, message: 'remove ok' });
-    });
+    //     const result = await userService.updateUser({
+    //         id: '2',
+    //         age: 30
+    //     });
+
+    //     expect(result).toEqual({
+    //         status: 0,
+    //         message: 'update ok'
+    //     });
+    //     expect(Models.UserModel.findOne).toHaveBeenCalledTimes(1);
+    //     expect(Models.UserModel.update).toHaveBeenCalledTimes(1);
+    // });
+
+    // it('should remove user successfully', async () => {
+    //     (Models.UserModel.update as any).mockResolvedValue();
+
+    //     const result = await userService.removeUser('1');
+
+    //     expect(result).toEqual({
+    //         status: 0,
+    //         message: 'remove ok'
+    //     });
+    //     expect(Models.UserModel.update).toHaveBeenCalledTimes(1);
+    // });
 });

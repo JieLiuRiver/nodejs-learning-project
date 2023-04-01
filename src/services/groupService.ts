@@ -1,7 +1,7 @@
 import Models from '@/models';
 import { EPermissionType, GroupType } from '@/types';
 import sequelize from '@/data-access/sequelize';
-import { toGroupWithPermission, toGroups } from '../helper/utils';
+import { toGroupWithPermission } from '@/shared/utils';
 
 const { GroupModel, UserModel } = Models;
 interface GroupServiceResponse {
@@ -55,7 +55,6 @@ class GroupService {
                 raw: true
             });
 
-            console.log('sameNameGroup', sameNameGroup);
 
             if (!!sameNameGroup) {
                 result.status = -1;

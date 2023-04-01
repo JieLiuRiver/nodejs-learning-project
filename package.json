@@ -7,13 +7,9 @@
     "start": "nodemon",
     "lint": "eslint --ext .js .",
     "lint:fix": "eslint --fix --ext .js .",
-    "test": "jest  -c",
+    "test": "jest -c ",
     "test:watch": "jest -c --watch",
     "test:coverage": "jest --coverage -c"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@gitcn.epam.com:Bode_He/nodejs-global-hometasks.git"
   },
   "keywords": [
     "nodejs"
@@ -62,12 +58,14 @@
     "@types/sequelize": "^4.28.14",
     "bcryptjs": "^2.4.3",
     "bunyan": "^1.8.15",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-validator": "^6.14.2",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "pg": "^8.8.0",
     "sequelize": "^6.26.0",
+    "shelljs": "^0.8.5",
     "uuid": "^9.0.0"
   }
 }

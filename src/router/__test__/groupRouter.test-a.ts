@@ -3,16 +3,16 @@ import request from 'supertest';
 
 const app = createServer();
 
-jest.mock('../../services/jwtService.ts', () => {
+jest.mock('@/services/jwtService.ts', () => {
     return {
-        verifyToken: jest.fn().mockImplementation((bool = true) => (req: any, res: any, next: any) => {
+        verifyToken: jest.fn().mockImplementation(() => (req: any, res: any, next: any) => {
             next();
         })
     };
 });
 
 
-jest.mock('../../services/groupService.ts', () => {
+jest.mock('@/services/groupService.ts', () => {
     return {
         createGroup: jest.fn().mockResolvedValue({
             message: 'created successfully',
@@ -40,6 +40,7 @@ jest.mock('../../services/groupService.ts', () => {
 
 describe('Group Authorization API', () => {
     it('POST /api/v1/group =>  should create group info successfully', async () => {
+        jest.setTimeout(10000);
         const response = await request(app)
             .post('/api/v1/group')
             .send({

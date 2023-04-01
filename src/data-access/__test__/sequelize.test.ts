@@ -1,16 +1,21 @@
-import { Sequelize } from 'sequelize';
 import sequelize, { connectSequelize } from '../sequelize';
+import logger from '@/services/logService';
 
 describe('sequelize', () => {
-  it('should create a new Sequelize instance', () => {
-    expect(sequelize).toBeInstanceOf(Sequelize);
-  });
+    it('should connect to the database successfully', async () => {
+        const authenticateSpy = jest.spyOn(sequelize, 'authenticate').mockResolvedValueOnce();
+        const infoSpy = jest.spyOn(logger, 'info').mockImplementationOnce(() => {});
+        await connectSequelize();
+        expect(authenticateSpy).toHaveBeenCalled();
+        expect(infoSpy).toHaveBeenCalledWith('Connection has been established successfully.');
+    });
 
-  it('should throw an error if the connection fails', async () => {
-    try {
-      await connectSequelize();
-    } catch (error) {
-      expect(error).toBeDefined();
-    }
-  });
+    it('should fail to connect to the database', async () => {
+        const error = new Error('Connection failed');
+        const authenticateSpy = jest.spyOn(sequelize, 'authenticate').mockRejectedValueOnce(error);
+        const errorSpy = jest.spyOn(logger, 'error').mockImplementationOnce(() => {});
+        await connectSequelize();
+        expect(authenticateSpy).toHaveBeenCalled();
+        expect(errorSpy).toHaveBeenCalledWith('Unable to connect to the database:', error);
+    });
 });

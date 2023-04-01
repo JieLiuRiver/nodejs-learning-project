@@ -4,6 +4,7 @@ import { connectSequelize } from '@/data-access/sequelize';
 import { findAvailablePort } from './shared/port';
 import log from '@/services/logService';
 import createServer from './server';
+import { asynModel } from './models';
 
 const PORT = process.env.PORT || config.port;
 
@@ -17,16 +18,21 @@ process.on('unhandledRejection', (err) => {
 });
 
 connectSequelize()
-    .then(() => createServer())
-    .then(async (app) => {
-       const port = await findAvailablePort(app, Number(PORT))
-        if (port !== PORT) {
-            console.log(
-                `Port ${PORT} is in use by another process. choosed ${port} port and start the server now.`
-            );
-        }
-        app.listen(port, () =>
-            console.log(`⚡️[server]: Server is running at https://localhost:${port}`)
-        );
+    .then(async () => {
+        await asynModel();
+        return createServer();
+    })
+    .then((app) => {
+        findAvailablePort(app, Number(PORT))
+            .then((port) => {
+                port !== PORT &&
+                    console.log(
+                        `Port ${PORT} is in use by another process. choosed ${port} port and start the server now.`
+                    );
+                app.listen(port, () =>
+                    console.log(`⚡️[server]: Server is running at https://localhost:${port}`)
+                );
+            })
+            .catch((err) => console.error(err));
     })
     .catch(e => log.error(`Error:${e}`));

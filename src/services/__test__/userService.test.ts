@@ -1,148 +1,171 @@
-
-import Models from '../../models'
-import jwtServices from '../jwtService';
+import { User } from '@/types';
+import userService from '../userService';
+import jwtService from '../jwtService';
 import md5Service from '../md5Service';
-import UserService from '../userService';
+import Models from '@/models';
 
-const { UserModel } = Models
+jest.mock('@/models', () => {
+    const mockUserModel = {
+        findAll: jest.fn(),
+        findOne: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn()
+    };
+    const mockGroupModel = {};
+    return {
+        UserModel: mockUserModel,
+        GroupModel: mockGroupModel
+    };
+});
 
-jest.mock('../../models', () => ({
-  UserModel: {
-    findAll: jest.fn().mockResolvedValue([{ id: '1', login: 'test-user' }]),
-    findOne: jest.fn().mockResolvedValue({ id: '1', login: 'test-user' }),
-    create: jest.fn().mockReturnValue({ dataValues: { id: 'id' } }),
-    update: jest.fn().mockReturnValue(true),
-  },
-  GroupModel: {}
-}));
+jest.mock('../md5Service', () => {
+    return {
+        createHash: jest.fn(),
+        compareHash: jest.fn()
+    };
+});
+jest.mock('../jwtService', () => {
+    return {
+        createToken: jest.fn()
+    };
+});
 
 describe('UserService', () => {
-      let userService: typeof UserService;
-
-      beforeEach(() => {
-        userService = UserService
-      });
-
-    it('should return a list of users', async () => {
-      const result = await userService.getUsers();
-      expect(result).toEqual([{ id: '1', login: 'test-user' }]);
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
-    it('should return a user with the specified ID', async () => {
+    it('should return all users', async () => {
+        const mockUsers: User[] = [
+            {
+                id: '1',
+                login: 'user1',
+                password: 'password1',
+                isDeleted: false,
+                age: 20
+            },
+            {
+                id: '2',
+                login: 'user2',
+                password: 'password2',
+                isDeleted: false,
+                age: 22
+            }
+        ];
+        (Models.UserModel.findAll as any).mockResolvedValue(mockUsers as any);
+
+        const result = await userService.getUsers();
+
+        expect(result).toEqual(mockUsers);
+        expect(Models.UserModel.findAll).toHaveBeenCalledTimes(1);
+        expect(Models.UserModel.findAll).toHaveBeenCalledWith({
+            include: [{ model: Models.GroupModel, attributes: ['id', 'name', 'permissions'] }],
+            raw: true
+        });
+    });
+
+    it('should return the user if it exists', async () => {
+        const mockUser = {
+            id: '1',
+            login: 'user1',
+            password: 'password1',
+            isDeleted: false
+        };
+        (Models.UserModel.findOne as any).mockResolvedValue(mockUser);
         const result = await userService.findUserById('1');
-        expect(result).toEqual({ id: '1', login: 'test-user' });
+
+        expect(result).toEqual(mockUser);
+        expect(Models.UserModel.findOne).toHaveBeenCalledTimes(1);
+        expect(Models.UserModel.findOne).toHaveBeenCalledWith({
+            where: { id: '1' },
+            raw: true
+        });
     });
-    
-    describe('insertUser', () => {
-    
-        it('should insert a new user', async () => {
-          const user ={
-            login: 'testuser',
-            password: 'testpass',
-            age: 30,
-            isDeleted: false,
-          };
-    
-          const result = await UserService.insertUser(user);
-          expect(result.status).toBe(0);
-          expect(result.message).toBe('register successfully');
-          expect(result).toHaveProperty('userid');
-    
-          const insertedUser = await UserModel.findOne({ where: { login: 'testuser' } });
-          expect(insertedUser).toBeDefined();
-          expect(insertedUser).toEqual({ id: '1', login: 'test-user' });
-        });
-    })
 
-    describe('login', () => {
-        it('should return a token when login is successful', async () => {
-          jest.spyOn(UserModel, 'findOne').mockReturnValue({
-            dataValues: {
-              login: 'test',
-              password: 'password',
-            },
-          } as any);
-          
-          jest.spyOn(md5Service, 'compareHash').mockReturnValue(Promise.resolve(true));
-          
-          jest.spyOn(jwtServices, 'createToken').mockReturnValue(Promise.resolve('token'));
-          
-          const result = await userService.login({ login: 'test', password: 'password' });
-          
-          expect(result.message).toEqual('login ok');
-          expect(result.status).toBe(0);
+    it('should insert a new user and return the user ID', async () => {
+        const mockUser = {
+            login: 'user3',
+            password: 'password3',
+            firstName: 'John',
+            lastName: 'Doe',
+            age: 20,
+            isDeleted: false
+        };
+        const mockUserWithId = {
+            ...mockUser,
+            id: '3'
+        };
+        (Models.UserModel.create as any).mockResolvedValue({
+            dataValues: mockUserWithId
         });
-        
-        it('should return an error when login is unsuccessful', async () => {
-          jest.spyOn(UserModel, 'findOne').mockReturnValue(Promise.resolve(null));
-          
-          const result = await userService.login({ login: 'test', password: 'password' });
-          
-          expect(result).toEqual({
-            status: -1,
-            message: 'test is not exists.',
-            token: ""
-          });
-        });
-      });
+        (md5Service.createHash as any).mockReturnValue('hashedPassword');
 
-    describe('updateUser', () => {
-        it('should update the user when the update is successful', async () => {
-          jest.spyOn(UserModel, 'findOne').mockReturnValue({
-            dataValues: {
-              id: 'id',
-              login: 'test',
-              password: 'password',
-            },
-          } as any);
-          
-          jest.spyOn(UserModel, 'update').mockReturnValue({
-            dataValues: {
-              id: 'id',
-              login: 'updated',
-              password: 'password',
-            },
-          } as any);
-          
-          const result = await userService.updateUser({ id: 'id', login: 'updated' });
-          
-          expect(result).toEqual({
+        const result = await userService.insertUser(mockUser);
+
+        expect(result).toEqual({
+            status: 0,
+            message: 'register successfully',
+            userid: '3'
+        });
+        expect(Models.UserModel.create).toHaveBeenCalledTimes(1);
+        expect(Models.UserModel.create).toHaveBeenCalledWith({
+            ...mockUser,
+            password: 'hashedPassword'
+        });
+        expect(md5Service.createHash).toHaveBeenCalledTimes(1);
+        expect(md5Service.createHash).toHaveBeenCalledWith('password3');
+    });
+
+    it('should update user successfully', async () => {
+        (Models.UserModel.findOne as any).mockResolvedValue(true);
+        (Models.UserModel.update as any).mockResolvedValue();
+
+        const result = await userService.updateUser({
+            id: '2',
+            age: 30
+        });
+
+        expect(result).toEqual({
             status: 0,
             message: 'update ok'
-          });
         });
-
-        it('should return an error when the user does not exist', async () => {
-            jest.spyOn(UserModel, 'findOne').mockReturnValue(Promise.resolve(null));
-            
-            const result = await userService.updateUser({ id: 'id', login: 'test1' });
-            
-            expect(result).toEqual({
-              status: -1,
-              message: 'test1 is not exists.',
-            });
-        });
-    })
-
-    describe('removeUser', () => {
-        it('should remove the user when the remove is successful', async () => {
-          jest.spyOn(UserModel, 'findOne').mockReturnValue({
-            dataValues: {
-              id: 'id',
-              login: 'test',
-              password: 'password',
-            },
-          } as any);
-          
-          jest.spyOn(UserModel, 'update').mockReturnValue({affectedCount: 1} as any);
-          
-          const result = await userService.removeUser('testid');
-          
-          expect(result).toEqual({
-            status: 0,
-            message: 'remove ok'
-          });
-        });
+        expect(Models.UserModel.findOne).toHaveBeenCalledTimes(1);
+        expect(Models.UserModel.update).toHaveBeenCalledTimes(1);
     });
 
+    it('should remove user successfully', async () => {
+        (Models.UserModel.update as any).mockResolvedValue();
+
+        const result = await userService.removeUser('1');
+
+        expect(result).toEqual({
+            status: 0,
+            message: 'remove ok'
+        });
+        expect(Models.UserModel.update).toHaveBeenCalledTimes(1);
+    });
+
+    it('should login successfully', async () => {
+        (Models.UserModel.findOne as any).mockResolvedValue({
+            password: 'password2',
+            id: '2'
+        });
+        (md5Service.compareHash as any).mockReturnValue(true);
+        (jwtService.createToken as any).mockReturnValue('mock token');
+
+        const result = await userService.login({
+            password: 'password2',
+            login: 'login2'
+        });
+
+        expect(result).toEqual({
+            status: 0,
+            message: 'login ok',
+            token: 'mock token',
+            userid: '2'
+        });
+        expect(Models.UserModel.findOne).toHaveBeenCalledTimes(1);
+        expect(md5Service.compareHash).toHaveBeenCalledTimes(1);
+        expect(jwtService.createToken).toHaveBeenCalledTimes(1);
+    });
 });

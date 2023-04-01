@@ -11,16 +11,16 @@ describe('createHash', () => {
 
 describe('compareHash', () => {
     it('should return true for matching hashes', async () => {
-      const str = 'test';
-      const hash = Md5Service.createHash(str);
-      const result = await Md5Service.compareHash(str, hash);
-      expect(result).toBe(true);
+        const str = 'test';
+        const hash = Md5Service.createHash(str);
+        const result = await Md5Service.compareHash(str, hash);
+        expect(result).toBe(true);
     });
-  
+
     it('should return false for non-matching hashes', async () => {
-      const str = 'test';
-      const hash = Md5Service.createHash('other');
-      const result = await Md5Service.compareHash(str, hash);
-      expect(result).toBe(false);
+        const str = 'test';
+        const hash = Md5Service.createHash('other');
+        const result = await Md5Service.compareHash(str, hash);
+        expect(result).toBe(false);
     });
 });

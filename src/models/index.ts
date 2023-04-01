@@ -5,12 +5,10 @@ import GroupModel from './groupModel';
 import UserGroupModel from './UserGroupModel';
 
 
-const asynModel = async () => {
+export const asynModel = async () => {
     console.log('Syncing all defined models to the DB...');
     await sequelize.sync();
 };
-
-asynModel();
 
 UserModel.belongsToMany(GroupModel, { through: UserGroupModel, foreignKey: 'userid' });
 GroupModel.belongsToMany(UserModel, { through: UserGroupModel, foreignKey: 'groupid' });
