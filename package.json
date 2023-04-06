@@ -7,9 +7,9 @@
     "start": "nodemon",
     "lint": "eslint --ext .js .",
     "lint:fix": "eslint --fix --ext .js .",
-    "test": "jest -c ",
-    "test:watch": "jest -c --watch",
-    "test:coverage": "jest --coverage -c"
+    "test": "rm -rf dist/ && jest -c ",
+    "test:watch": "rm -rf dist/ && jest -c --watch",
+    "test:coverage": "rm -rf dist/ && jest --coverage -c"
   },
   "keywords": [
     "nodejs"
