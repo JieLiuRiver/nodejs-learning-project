@@ -26,7 +26,7 @@ class JWTServices {
     verifyToken(required: boolean = true) {
         return async (req: Request, res: Response, next:  NextFunction) => {
             let token = req.headers[config.token_headers_field];
-            token = token && typeof token === 'string' ? token.split(`${config.jwt_prefix} `)[1] : '';
+            token = token && typeof token === 'string' ? token.split('Bearer ')[1] : '';
             if (token) {
                 try {
                     const userinfo = await verifyPromise(token);
