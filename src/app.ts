@@ -26,7 +26,14 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(logApiMiddleware, logExceptionMiddleware);
 app.use(express.static('public'));
-app.use(cors());
+app.use(cors({
+    // Change to the origin of your front-end application
+    origin: 'http://localhost:8000',
+    allowedHeaders: 'Content-Type',
+    // allow with cookie or authorization
+    credentials: true,
+    methods: 'GET, POST, PUT'
+}));
 app.use(config.api_base_url, router);
 
 
