@@ -1,10 +1,20 @@
 import config from '@/config';
+import express from 'express';
 import 'module-alias';
 import { connectSequelize } from '@/data-access/sequelize';
 import { findAvailablePort } from './shared/port';
 import log from '@/services/logService';
+import cors from 'cors';
+import router from '@/router';
+import logApiMiddleware from '@/middlewares/logApiMiddleware';
+import logExceptionMiddleware from '@/middlewares/logExceptionMiddleware';
+import formatResponse from './middlewares/formatResponse';
+
 import createServer from './server';
-import { asynModel } from './models';
+import { asyncModel } from './models';
+
+
+const app = express();
 
 const PORT = process.env.PORT || config.port;
 
@@ -19,7 +29,14 @@ process.on('unhandledRejection', (err) => {
 
 connectSequelize()
     .then(async () => {
-        await asynModel();
+        await asyncModel();
+        app.use(formatResponse);
+        app.use(express.json());
+        app.use(express.urlencoded());
+        app.use(logApiMiddleware, logExceptionMiddleware);
+        app.use(express.static('public'));
+        app.use(cors());
+        app.use(config.api_base_url!, router);
         return createServer();
     })
     .then((app) => {

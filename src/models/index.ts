@@ -5,7 +5,7 @@ import GroupModel from './groupModel';
 import UserGroupModel from './UserGroupModel';
 
 
-export const asynModel = async () => {
+export const asyncModel = async () => {
     console.log('Syncing all defined models to the DB...');
     await sequelize.sync();
 };
