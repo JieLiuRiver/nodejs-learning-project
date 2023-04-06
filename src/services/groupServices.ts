@@ -32,7 +32,8 @@ class GroupService {
         const findResult = await GroupModel.findOne({
             where: {
                 id
-            }
+            },
+            raw: true
         });
         return findResult;
     }
@@ -44,7 +45,21 @@ class GroupService {
             status: 0
         };
         try {
-            const { permissions, userIds } = group;
+            const { permissions, userIds, name } = group;
+
+            const sameNameGroup = await GroupModel.findOne({
+                where: {
+                    name
+                },
+                raw: true
+            });
+
+            if (!!sameNameGroup) {
+                result.status = -1;
+                result.message = `${name} is already exist`;
+                return result;
+            }
+
             if (!Array.isArray(permissions)) {
                 result.status = -1;
                 result.message = 'permissions is a array type';
@@ -56,8 +71,8 @@ class GroupService {
                 result.message = `permissions only support types: ${Object.keys(EPermissionType)}`;
                 return result;
             }
-            const Groups = await this.getGroups();
-            const existGroup = Groups.find((item) => item.login === group.name);
+            const groups = await this.getGroups();
+            const existGroup = groups.find((item) => item.login === group.name);
             if (existGroup) {
                 result.status = -1;
                 result.message = `${group.name} is already exists.`;
@@ -65,12 +80,12 @@ class GroupService {
             }
             let groupid: string;
             await sequelize.transaction(async (t) => {
-                const createRes: any =  await GroupModel.create(toGroupWithPermission(group) as any, { transaction: t });
-                groupid = createRes.dataValues.id;
-                return await this.addUsersToGroup(groupid, userIds, t);
+                const groupInstance: any =  await GroupModel.create(toGroupWithPermission(group) as any, { transaction: t });
+                groupid = groupInstance.dataValues.id;
+                return await this.addUsersToGroup(groupInstance, userIds, t);
             });
             result.status = 0;
-            result.message = 'insert ok';
+            result.message = 'created successfully';
             result.groupid = groupid!;
             return result;
         } catch (error) {
@@ -78,14 +93,30 @@ class GroupService {
         }
     }
 
-    private async addUsersToGroup(groupid: string, userIds: string[], transaction: any): Promise<boolean> {
+    private async addUsersToGroup(groudModelInstance: any, userIds: string[], transaction: any): Promise<boolean> {
         if (Array.isArray(userIds) && userIds.length) {
-            const group: any = await GroupModel.findByPk(groupid);
             const users = await UserModel.findAll({ where: { id: userIds } });
-            await group?.setUsers(users, { transaction });
+            await groudModelInstance?.setUsers(users, { transaction });
             return true;
         }
         return false;
+    }
+
+    async updateGroupContainUsers(groupid: string, userids: string[]) {
+        try {
+            const result: GroupServiceResponse = {
+                status: -1
+            };
+            await sequelize.transaction(async (t) => {
+                const groudModelInstance = await GroupModel.findByPk(groupid);
+                return await this.addUsersToGroup(groudModelInstance, userids, t);
+            });
+            result.status = 0;
+            result.message = 'update successfully';
+            return result;
+        } catch (error) {
+            console.log(error);
+        }
     }
 
 

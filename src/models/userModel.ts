@@ -10,7 +10,9 @@ const Users = sequelize.define<Model<User>>('users', {
         defaultValue: uuid
     },
     login: Sequelize.STRING(100),
-    password: Sequelize.STRING(100),
+    password: {
+        type: Sequelize.STRING(100)
+    },
     age: Sequelize.INTEGER,
     isDeleted: {
         type: Sequelize.BOOLEAN,

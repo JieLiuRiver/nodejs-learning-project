@@ -12,11 +12,11 @@ const UserGroup = sequelize.define<Model<{id: string, userid: string, groupid: s
     userid: {
         type: Sequelize.INTEGER,
         allowNull:false,
-        unique: 'usersGroup'
+        unique: 'usersGroups'
     },
     groupid:{
         type: Sequelize.INTEGER,
-        unique: 'usersGroup',
+        unique: 'usersGroups',
         allowNull:false
     }
 }, {
