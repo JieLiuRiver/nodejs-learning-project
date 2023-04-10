@@ -1,6 +1,6 @@
 
 import ReqMapper from '@/mapper/reqMapper';
-import log from '@/services/logServices';
+import log from '@/services/logService';
 import { Request, Response, NextFunction } from '@/types/index';
 
 

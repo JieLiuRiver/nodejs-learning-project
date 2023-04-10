@@ -1,7 +1,6 @@
 import Models from '@/models';
 import { User } from '@/types';
-import { toUsers } from '../helper/utils';
-import jwtServices from './jwtServices';
+import jwtServices from './jwtService';
 import md5Service from './md5Service';
 
 const { UserModel, GroupModel } = Models;
@@ -22,12 +21,12 @@ interface LoginResponse extends UserServiceResponse {
 class UserService {
     async getUsers(limit?: number, loginSubstring?: string) {
         try {
-            const findResults = await UserModel.findAll({
+            const users: any[] = await UserModel.findAll({
                 include: [
                     { model: GroupModel, attributes: ['id', 'name', 'permissions'] }
-                ]
+                ],
+                raw: true
             });
-            const users = toUsers(findResults);
             let avaibleUsers = users.filter((user) => !user.isDeleted);
             if (loginSubstring) {
                 avaibleUsers = avaibleUsers.filter((user) => user.login.includes(loginSubstring));
@@ -65,13 +64,14 @@ class UserService {
                 return result;
             }
             user.password = md5Service.createHash(user.password);
-            const createRes =  await UserModel.create(user as User);
+            const createRes = await UserModel.create(user as User);
             result.status = 0;
             result.message = 'register successfully';
             result.userid = createRes.dataValues.id;
             return result;
         } catch (error) {
             console.log(error);
+            return result;
         }
     }
 
@@ -100,9 +100,11 @@ class UserService {
             });
             result.status = 0;
             result.message = 'login ok';
+            result.userid = (existUser as any).id;
             return result;
         } catch (error) {
             console.log(error);
+            return result;
         }
     }
 
@@ -127,6 +129,7 @@ class UserService {
             return result;
         } catch (error) {
             console.log(error);
+            return result;
         }
     }
 

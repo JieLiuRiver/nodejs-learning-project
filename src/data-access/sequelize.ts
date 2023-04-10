@@ -1,21 +1,27 @@
 import { Sequelize } from 'sequelize';
 import CONFIG from '@/config';
+import logger from '@/services/logService';
 
 const { postgres } = CONFIG;
 
 const sequelize = new Sequelize(
-    `postgres://${postgres.user}:${postgres.password}@${postgres.host}:${postgres.port}/${postgres.database}`
+    `postgres://${postgres.user}:${postgres.password}@${postgres.host}:${postgres.port}/${postgres.database}`,
+    {
+        pool: {
+            max: 100,
+            acquire: 30000,
+            idle: 10000
+        }
+    }
 );
 
-const connect = async () => {
+export const connectSequelize = async () => {
     try {
         await sequelize.authenticate();
-        console.log('Connection has been established successfully.');
+        logger.info('Connection has been established successfully.');
     } catch (error) {
-        console.error('Unable to connect to the database:', error);
+        logger.error('Unable to connect to the database:', error);
     }
 };
-
-connect();
 
 export default sequelize;

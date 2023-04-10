@@ -1,7 +1,7 @@
 import Models from '@/models';
 import { EPermissionType, GroupType } from '@/types';
 import sequelize from '@/data-access/sequelize';
-import { toGroupWithPermission, toGroups } from '../helper/utils';
+import { toGroupWithPermission } from '@/shared/utils';
 
 const { GroupModel, UserModel } = Models;
 interface GroupServiceResponse {
@@ -19,9 +19,10 @@ class GroupService {
             const findResults = await GroupModel.findAll({
                 include: [
                     { model: UserModel, attributes: ['id', 'login'] }
-                ]
+                ],
+                raw: true
             });
-            return toGroups(findResults);
+            return findResults;
         } catch (error) {
             console.log(error);
             return [];
@@ -54,6 +55,7 @@ class GroupService {
                 raw: true
             });
 
+
             if (!!sameNameGroup) {
                 result.status = -1;
                 result.message = `${name} is already exist`;
@@ -71,7 +73,7 @@ class GroupService {
                 result.message = `permissions only support types: ${Object.keys(EPermissionType)}`;
                 return result;
             }
-            const groups = await this.getGroups();
+            const groups: any[] = await this.getGroups();
             const existGroup = groups.find((item) => item.login === group.name);
             if (existGroup) {
                 result.status = -1;
@@ -90,6 +92,7 @@ class GroupService {
             return result;
         } catch (error) {
             console.log(error);
+            return result;
         }
     }
 
@@ -102,11 +105,11 @@ class GroupService {
         return false;
     }
 
-    async updateGroupContainUsers(groupid: string, userids: string[]) {
+    async updateGroupContainUsers(groupid: string, userids: string[]): Promise<GroupServiceResponse> {
+        const result: GroupServiceResponse = {
+            status: -1
+        };
         try {
-            const result: GroupServiceResponse = {
-                status: -1
-            };
             await sequelize.transaction(async (t) => {
                 const groudModelInstance = await GroupModel.findByPk(groupid);
                 return await this.addUsersToGroup(groudModelInstance, userids, t);
@@ -116,6 +119,7 @@ class GroupService {
             return result;
         } catch (error) {
             console.log(error);
+            return result;
         }
     }
 
@@ -161,6 +165,7 @@ class GroupService {
             return result;
         } catch (error) {
             console.log(error);
+            return result;
         }
     }
 

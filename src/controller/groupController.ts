@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import ReqMapper from '@/mapper/reqMapper';
-import GroupService from '../services/groupServices';
-import log from '@/services/logServices';
+import GroupService from '@/services/groupService';
+import log from '@/services/logService';
 import { GroupType } from '../types';
 
 const createGroup = async (req: Request<any, Omit<GroupType, 'id'> & {
