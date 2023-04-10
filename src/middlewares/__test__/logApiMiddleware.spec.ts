@@ -1,8 +1,8 @@
-import logApiMiddleware from '@/middlewares/logApiMiddleware';
-import ReqMapper from '@/mapper/reqMapper';
-import log from '@/services/logService';
+import logApiMiddleware from '../../middlewares/logApiMiddleware';
+import ReqMapper from '../../mapper/reqMapper';
+import log from '../../services/logService';
 
-jest.mock('@/services/logService');
+jest.mock('../../services/logService');
 
 describe('logApiMiddleware', () => {
     it('should call log service with correct request info', () => {

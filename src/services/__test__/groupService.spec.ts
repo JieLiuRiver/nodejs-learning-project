@@ -1,6 +1,6 @@
 import groupService from '../groupService';
-import Models from '@/models';
-import { GroupType, EPermissionType } from '@/types';
+import Models from '../../models';
+import { GroupType, EPermissionType } from '../../types';
 
 jest.mock('@/models', () => {
     const mockGroupModel = {

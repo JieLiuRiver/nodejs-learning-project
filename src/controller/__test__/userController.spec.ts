@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
-import router from '@/router/userRouter';
-import Controller from '../../controller/userController';
+import router from '../../router/userRouter';
+import Controller from '../userController';
 import jwtService from '../../services/jwtService';
 
 jest.mock('../../controller/userController.ts', () => ({

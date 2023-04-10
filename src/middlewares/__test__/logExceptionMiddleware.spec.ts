@@ -1,5 +1,5 @@
 import logExceptionMiddleware from '../logExceptionMiddleware';
-import logService from '@/services/logService';
+import logService from '../../services/logService';
 
 describe('logExceptionMiddleware', () => {
     const err = new Error('test error');

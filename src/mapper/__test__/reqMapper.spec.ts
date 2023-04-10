@@ -1,4 +1,4 @@
-import reqMapper from '@/mapper/reqMapper';
+import reqMapper from '../../mapper/reqMapper';
 
 const MOCK_INFO = {
     method: 'get',

@@ -1,8 +1,8 @@
-import { User } from '@/types';
+import { User } from '../../types';
 import userService from '../userService';
 import jwtService from '../jwtService';
 import md5Service from '../md5Service';
-import Models from '@/models';
+import Models from '../../models';
 
 jest.mock('@/models', () => {
     const mockUserModel = {

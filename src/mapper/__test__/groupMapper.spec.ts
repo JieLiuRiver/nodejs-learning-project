@@ -1,4 +1,4 @@
-import groupMapper from '@/mapper/GroupMapper';
+import groupMapper from '../../mapper/GroupMapper';
 
 
 const PERMISSIONS = ['READ', 'DELETE'];

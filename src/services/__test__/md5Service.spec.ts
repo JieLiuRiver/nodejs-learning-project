@@ -1,4 +1,4 @@
-import Md5Service from '@/services/md5Service';
+import Md5Service from '../../services/md5Service';
 
 describe('createHash', () => {
     it('should create a new hash from a string', () => {

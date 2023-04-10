@@ -1,5 +1,5 @@
 import sequelize, { connectSequelize } from '../sequelize';
-import logger from '@/services/logService';
+import logger from '../../services/logService';
 
 describe('sequelize', () => {
     it('should connect to the database successfully', async () => {
